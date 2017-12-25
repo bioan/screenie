@@ -33,6 +33,7 @@ namespace Screenie
         private void OnHotKeyHandler(HotKey hotKey)
         {
             WindowState = WindowState.Maximized;
+            CaptureScreen();
             this.Activate();
         }
 
@@ -70,7 +71,7 @@ namespace Screenie
             this.WindowState = WindowState.Minimized;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void CaptureScreen()
         {
             this.Hide();
             Bitmap screenshotBmp;
