@@ -5,7 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Screenie"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525"
+        KeyDown="myTestKey"
+        WindowStyle="None"
+        WindowState="Maximized">
     <Grid>
         <Button Click="Button_Click" Content="Take" HorizontalAlignment="Left" Margin="220,52,0,0" VerticalAlignment="Top" Width="75"/>
         <Image Name="imageCapture"/>

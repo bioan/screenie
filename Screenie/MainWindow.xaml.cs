@@ -25,8 +25,15 @@ namespace Screenie
 
         public MainWindow()
         {
-            
+            HotKey _hotKey = new HotKey(Key.PrintScreen, KeyModifier.None, OnHotKeyHandler);
+            this.ShowInTaskbar = false;
             InitializeComponent();
+        }
+
+        private void OnHotKeyHandler(HotKey hotKey)
+        {
+            WindowState = WindowState.Maximized;
+            this.Activate();
         }
 
         private static BitmapSource CopyScreen()
@@ -46,6 +53,21 @@ namespace Screenie
                         BitmapSizeOptions.FromEmptyOptions());
                 }
             }
+        }
+
+        private void myTestKey(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                WindowState = WindowState.Minimized;
+                return;
+            }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            this.ShowInTaskbar = false;
+            this.WindowState = WindowState.Minimized;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
