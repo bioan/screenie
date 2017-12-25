@@ -1,0 +1,78 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Windows.Interop;
+
+namespace Screenie
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        public static extern bool DeleteObject(IntPtr hObject);
+
+        public MainWindow()
+        {
+            
+            InitializeComponent();
+        }
+
+        private static BitmapSource CopyScreen()
+        {
+            using (var screenBmp = new Bitmap(
+                (int)SystemParameters.PrimaryScreenWidth,
+                (int)SystemParameters.PrimaryScreenHeight,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+            {
+                using (var bmpGraphics = Graphics.FromImage(screenBmp))
+                {
+                    bmpGraphics.CopyFromScreen(0, 0, 0, 0, screenBmp.Size);
+                    return Imaging.CreateBitmapSourceFromHBitmap(
+                        screenBmp.GetHbitmap(),
+                        IntPtr.Zero,
+                        Int32Rect.Empty,
+                        BitmapSizeOptions.FromEmptyOptions());
+                }
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            Bitmap screenshotBmp;
+            screenshotBmp = new System.Drawing.Bitmap((int)SystemParameters.PrimaryScreenWidth,
+                (int)SystemParameters.PrimaryScreenHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (System.Drawing.Graphics g= System.Drawing.Graphics.FromImage(screenshotBmp))
+            {
+                g.CopyFromScreen(0, 0, 0, 0, screenshotBmp.Size);
+            }
+
+            IntPtr handle = IntPtr.Zero;
+            try
+            {
+                handle = screenshotBmp.GetHbitmap();
+
+                imageCapture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+
+                
+            }
+            finally
+            {
+                DeleteObject(handle);
+            }
+            this.Show();
+        }
+    }
+}
