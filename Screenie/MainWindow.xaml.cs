@@ -8,10 +8,8 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Windows.Interop;
+using System.Windows.Controls;
 
 namespace Screenie
 {
@@ -39,12 +37,12 @@ namespace Screenie
 
         private static BitmapSource CopyScreen()
         {
-            using (var screenBmp = new Bitmap(
+            using (var screenBmp = new System.Drawing.Bitmap(
                 (int)SystemParameters.PrimaryScreenWidth,
                 (int)SystemParameters.PrimaryScreenHeight,
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb))
             {
-                using (var bmpGraphics = Graphics.FromImage(screenBmp))
+                using (var bmpGraphics = System.Drawing.Graphics.FromImage(screenBmp))
                 {
                     bmpGraphics.CopyFromScreen(0, 0, 0, 0, screenBmp.Size);
                     return Imaging.CreateBitmapSourceFromHBitmap(
@@ -74,7 +72,7 @@ namespace Screenie
         private void CaptureScreen()
         {
             this.Hide();
-            Bitmap screenshotBmp;
+            System.Drawing.Bitmap screenshotBmp;
             screenshotBmp = new System.Drawing.Bitmap((int)SystemParameters.PrimaryScreenWidth,
                 (int)SystemParameters.PrimaryScreenHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             using (System.Drawing.Graphics g= System.Drawing.Graphics.FromImage(screenshotBmp))
@@ -86,10 +84,9 @@ namespace Screenie
             try
             {
                 handle = screenshotBmp.GetHbitmap();
-
-                imageCapture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-
-                
+                ImageBrush ib = new ImageBrush();
+                ib.ImageSource = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                ImageCanvas.Background = ib;
             }
             finally
             {
@@ -97,5 +94,74 @@ namespace Screenie
             }
             this.Show();
         }
+#region Selection
+        private bool isDragging = false;
+        private Point mouseDownPos = new Point();
+        private Point mouseUpPos = new Point();
+
+        private void ImageCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            isDragging = true;
+            mouseDownPos = e.GetPosition(ImageCanvas);
+
+            // Initial placement of the drag selection box.         
+            Canvas.SetLeft(SelectionRect, mouseDownPos.X);
+            Canvas.SetTop(SelectionRect, mouseDownPos.Y);
+            SelectionRect.Width = 0;
+            SelectionRect.Height = 0;
+
+            // Make the drag selection box visible.
+            SelectionRect.Visibility = Visibility.Visible;
+
+        }
+
+        private void ImageCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            isDragging = false;
+            SelectionRect.Visibility = Visibility.Collapsed;
+
+            Point mouseUpPos = e.GetPosition(ImageCanvas);
+
+            //Mask Top
+            Canvas.SetLeft(MaskTop, 0);
+            Canvas.SetTop(MaskTop, 0);
+            MaskTop.Width = SystemParameters.PrimaryScreenWidth;
+            MaskTop.Height = Math.Min(mouseUpPos.Y, mouseDownPos.Y);
+
+            //Mask Left
+            Canvas.SetLeft(MaskLeft, 0);
+            Canvas.SetTop(MaskLeft, Math.Min(mouseUpPos.Y, mouseDownPos.Y));
+
+            MaskLeft.Width = Math.Min(mouseUpPos.X, mouseDownPos.X);
+            MaskLeft.Height = Math.Abs(mouseUpPos.Y - mouseDownPos.Y);
+
+            //Mask Right
+            Canvas.SetLeft(MaskRight, Math.Max(mouseUpPos.X, mouseDownPos.X));
+            Canvas.SetTop(MaskRight, Math.Min(mouseUpPos.Y, mouseDownPos.Y));
+
+            MaskRight.Width = SystemParameters.PrimaryScreenWidth - Math.Max(mouseUpPos.X, mouseDownPos.X);
+            MaskRight.Height = Math.Abs(mouseUpPos.Y - mouseDownPos.Y);
+
+            //Mask Bottom
+            Canvas.SetLeft(MaskBottom, 0);
+            Canvas.SetTop(MaskBottom, Math.Max(mouseUpPos.Y, mouseDownPos.Y));
+            MaskBottom.Width = SystemParameters.PrimaryScreenWidth;
+            MaskBottom.Height = SystemParameters.PrimaryScreenHeight - Math.Max(mouseUpPos.Y, mouseDownPos.Y);
+        }
+
+        private void ImageCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                Point mousePos = e.GetPosition(ImageCanvas);
+
+                Canvas.SetLeft(SelectionRect, Math.Min(mousePos.X, mouseDownPos.X));
+                Canvas.SetTop(SelectionRect, Math.Min(mousePos.Y, mouseDownPos.Y));
+
+                SelectionRect.Width = Math.Abs(mousePos.X - mouseDownPos.X);
+                SelectionRect.Height = Math.Abs(mousePos.Y - mouseDownPos.Y);
+            }
+        }
+#endregion
     }
 }

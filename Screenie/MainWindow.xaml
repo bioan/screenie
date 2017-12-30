@@ -9,8 +9,26 @@
         KeyDown="myTestKey"
         WindowStyle="None"
         WindowState="Minimized">
-    <Grid>
-        <Image Name="imageCapture"/>
+    <Grid x:Name="Layout">
+        
+        <Canvas x:Name="ImageCanvas" MouseLeftButtonDown="ImageCanvas_MouseLeftButtonDown" MouseMove="ImageCanvas_MouseMove" MouseLeftButtonUp="ImageCanvas_MouseLeftButtonUp">
+            
+            <Canvas>
+                <Rectangle x:Name="MaskTop" Fill="Black" Opacity="0.5"/>
+            </Canvas>
+            <Canvas>
+                <Rectangle x:Name="MaskLeft" Fill="Black" Opacity="0.5"/>
+            </Canvas>
+            <Canvas>
+                <Rectangle x:Name="MaskRight" Fill="Black" Opacity="0.5"/>
+            </Canvas>
+            <Canvas>
+                <Rectangle x:Name="MaskBottom" Fill="Black" Opacity="0.5"/>
+            </Canvas>
 
+            <Canvas x:Name="BackPlane">
+                <Rectangle x:Name="SelectionRect" Stroke="DarkOrange" Visibility="Collapsed"/>
+            </Canvas>
+        </Canvas>
     </Grid>
 </Window>
