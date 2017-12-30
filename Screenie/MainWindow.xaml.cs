@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Interop;
 using System.Windows.Controls;
+using System.Windows.Shapes;
 
 namespace Screenie
 {
@@ -123,30 +124,60 @@ namespace Screenie
             Point mouseUpPos = e.GetPosition(ImageCanvas);
 
             //Mask Top
+            ResizeCanvas(MaskTop, new Tuple<double, double, double, double>(
+                    0,
+                    0,
+                    SystemParameters.PrimaryScreenWidth,
+                    Math.Min(mouseUpPos.Y, mouseDownPos.Y)
+                    ));
+            /*
             Canvas.SetLeft(MaskTop, 0);
             Canvas.SetTop(MaskTop, 0);
             MaskTop.Width = SystemParameters.PrimaryScreenWidth;
             MaskTop.Height = Math.Min(mouseUpPos.Y, mouseDownPos.Y);
+            */
 
             //Mask Left
+            ResizeCanvas(MaskLeft, new Tuple<double, double, double, double>(
+                    0,
+                    Math.Min(mouseUpPos.Y, mouseDownPos.Y),
+                    Math.Min(mouseUpPos.X, mouseDownPos.X),
+                    Math.Abs(mouseUpPos.Y - mouseDownPos.Y)
+                    ));
+            /*
             Canvas.SetLeft(MaskLeft, 0);
             Canvas.SetTop(MaskLeft, Math.Min(mouseUpPos.Y, mouseDownPos.Y));
-
             MaskLeft.Width = Math.Min(mouseUpPos.X, mouseDownPos.X);
             MaskLeft.Height = Math.Abs(mouseUpPos.Y - mouseDownPos.Y);
+            */
 
             //Mask Right
+            ResizeCanvas(MaskRight, new Tuple<double, double, double, double>(
+                    Math.Max(mouseUpPos.X, mouseDownPos.X),
+                    Math.Min(mouseUpPos.Y, mouseDownPos.Y),
+                    SystemParameters.PrimaryScreenWidth - Math.Max(mouseUpPos.X, mouseDownPos.X),
+                    Math.Abs(mouseUpPos.Y - mouseDownPos.Y)
+                    ));
+            /*
             Canvas.SetLeft(MaskRight, Math.Max(mouseUpPos.X, mouseDownPos.X));
             Canvas.SetTop(MaskRight, Math.Min(mouseUpPos.Y, mouseDownPos.Y));
-
             MaskRight.Width = SystemParameters.PrimaryScreenWidth - Math.Max(mouseUpPos.X, mouseDownPos.X);
             MaskRight.Height = Math.Abs(mouseUpPos.Y - mouseDownPos.Y);
+            */
 
             //Mask Bottom
+            ResizeCanvas(MaskBottom, new Tuple<double, double, double, double>(
+                    0,
+                    Math.Max(mouseUpPos.Y, mouseDownPos.Y),
+                    SystemParameters.PrimaryScreenWidth,
+                    SystemParameters.PrimaryScreenHeight - Math.Max(mouseUpPos.Y, mouseDownPos.Y)
+                    ));
+            /*
             Canvas.SetLeft(MaskBottom, 0);
             Canvas.SetTop(MaskBottom, Math.Max(mouseUpPos.Y, mouseDownPos.Y));
             MaskBottom.Width = SystemParameters.PrimaryScreenWidth;
             MaskBottom.Height = SystemParameters.PrimaryScreenHeight - Math.Max(mouseUpPos.Y, mouseDownPos.Y);
+            */
         }
 
         private void ImageCanvas_MouseMove(object sender, MouseEventArgs e)
@@ -154,13 +185,28 @@ namespace Screenie
             if (isDragging)
             {
                 Point mousePos = e.GetPosition(ImageCanvas);
+                ResizeCanvas(SelectionRect, new Tuple<double, double, double, double>(
+                    Math.Min(mousePos.X, mouseDownPos.X),
+                    Math.Min(mousePos.Y, mouseDownPos.Y),
+                    Math.Abs(mousePos.X - mouseDownPos.X),
+                    Math.Abs(mousePos.Y - mouseDownPos.Y)
+                    ));
 
-                Canvas.SetLeft(SelectionRect, Math.Min(mousePos.X, mouseDownPos.X));
+                /*Canvas.SetLeft(SelectionRect, Math.Min(mousePos.X, mouseDownPos.X));
                 Canvas.SetTop(SelectionRect, Math.Min(mousePos.Y, mouseDownPos.Y));
 
                 SelectionRect.Width = Math.Abs(mousePos.X - mouseDownPos.X);
-                SelectionRect.Height = Math.Abs(mousePos.Y - mouseDownPos.Y);
+                SelectionRect.Height = Math.Abs(mousePos.Y - mouseDownPos.Y);*/
             }
+        }
+
+        private static void ResizeCanvas(Rectangle rect, Tuple<double, double, double, double> canvasValues)
+        {
+            Canvas.SetLeft(rect, canvasValues.Item1);
+            Canvas.SetTop(rect, canvasValues.Item2);
+
+            rect.Width = canvasValues.Item3;
+            rect.Height = canvasValues.Item4;
         }
 #endregion
     }

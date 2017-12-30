@@ -11,7 +11,8 @@
         WindowState="Minimized">
     <Grid x:Name="Layout">
         
-        <Canvas x:Name="ImageCanvas" MouseLeftButtonDown="ImageCanvas_MouseLeftButtonDown" MouseMove="ImageCanvas_MouseMove" MouseLeftButtonUp="ImageCanvas_MouseLeftButtonUp">
+        <Canvas x:Name="ImageCanvas" MouseLeftButtonDown="ImageCanvas_MouseLeftButtonDown" MouseMove="ImageCanvas_MouseMove" MouseLeftButtonUp="ImageCanvas_MouseLeftButtonUp"
+                ForceCursor="true" Cursor="Cross">
             
             <Canvas>
                 <Rectangle x:Name="MaskTop" Fill="Black" Opacity="0.5"/>
